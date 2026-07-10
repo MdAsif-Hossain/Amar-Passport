@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amar Passport — AI Passport Readiness Assistant</title>
+  <meta name="description" content="Multi-Agent AI system for Bangladesh e-Passport readiness assessment. Built with CrewAI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════
+       DESIGN SYSTEM — TOKENS
+       ═══════════════════════════════════════════ */
+    :root {
+      /* Color palette */
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #111827;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --bg-card-hover: rgba(30, 41, 59, 0.8);
+      --bg-glass: rgba(255, 255, 255, 0.03);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(56, 189, 248, 0.2);
+
+      /* Accent gradient */
+      --accent-1: #3b82f6;
+      --accent-2: #06b6d4;
+      --accent-3: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-rose: #f43f5e;
+
+      /* Text */
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-accent: #38bdf8;
+
+      /* Typography */
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --font-bengali: 'Noto Sans Bengali', 'Inter', sans-serif;
+
+      /* Spacing */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+
+      /* Shadows */
+      --shadow-glow: 0 0 40px rgba(56, 189, 248, 0.08);
+      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ═══════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background mesh */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 30% at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       LAYOUT
+       ═══════════════════════════════════════════ */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ═══════════════════════════════════════════
+       HEADER / HERO
+       ═══════════════════════════════════════════ */
+    .hero {
+      text-align: center;
+      padding: 60px 0 40px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-accent);
+      margin-bottom: 24px;
+      animation: fadeInDown 0.6s ease-out;
+    }
+
+    .hero-badge .dot {
+      width: 8px; height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      animation: fadeInUp 0.6s ease-out 0.1s both;
+    }
+
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      animation: fadeInUp 0.6s ease-out 0.2s both;
+    }
+
+    .hero-tech {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.6s ease-out 0.3s both;
+    }
+
+    .tech-tag {
+      padding: 4px 12px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ═══════════════════════════════════════════
+       AGENT PIPELINE (3 CARDS)
+       ═══════════════════════════════════════════ */
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 32px 0;
+      animation: fadeInUp 0.6s ease-out 0.4s both;
+    }
+
+    @media (max-width: 768px) {
+      .pipeline { grid-template-columns: 1fr; }
+    }
+
+    .agent-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .agent-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--agent-color-1), var(--agent-color-2));
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    .agent-card:hover { border-color: var(--border-glow); transform: translateY(-2px); }
+    .agent-card:hover::before { opacity: 1; }
+
+    .agent-card.active {
+      border-color: var(--agent-color-1);
+      box-shadow: 0 0 30px rgba(var(--agent-glow), 0.15);
+    }
+
+    .agent-card.active .agent-icon { animation: agentPulse 1.5s infinite; }
+
+    .agent-card:nth-child(1) { --agent-color-1: #3b82f6; --agent-color-2: #06b6d4; --agent-glow: 59, 130, 246; }
+    .agent-card:nth-child(2) { --agent-color-1: #10b981; --agent-color-2: #f59e0b; --agent-glow: 16, 185, 129; }
+    .agent-card:nth-child(3) { --agent-color-1: #8b5cf6; --agent-color-2: #f43f5e; --agent-glow: 139, 92, 246; }
+
+    .agent-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+
+    .agent-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      background: linear-gradient(135deg, var(--agent-color-1), var(--agent-color-2));
+      flex-shrink: 0;
+    }
+
+    .agent-name { font-weight: 700; font-size: 14px; color: var(--text-primary); }
+    .agent-role { font-size: 12px; color: var(--text-muted); }
+    .agent-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+    .agent-status {
+      margin-top: 12px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(100, 116, 139, 0.15);
+      color: var(--text-muted);
+    }
+
+    .agent-status.running { background: rgba(59, 130, 246, 0.15); color: var(--accent-1); }
+    .agent-status.done { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+
+    /* ═══════════════════════════════════════════
+       FORM
+       ═══════════════════════════════════════════ */
+    .form-section {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      margin: 32px 0;
+      animation: fadeInUp 0.6s ease-out 0.5s both;
+    }
+
+    .form-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .field input, .field select {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      transition: all 0.2s;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus, .field select:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .field select { cursor: pointer; }
+    .field select option { background: var(--bg-secondary); color: var(--text-primary); }
+
+    .field-toggle {
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-track {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(100, 116, 139, 0.3);
+      border-radius: 100px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle input:checked + .toggle-track { background: var(--accent-1); }
+    .toggle input:checked + .toggle-track::after { transform: translateX(20px); }
+
+    .field-toggle label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: none;
+      letter-spacing: 0;
+      cursor: pointer;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: white;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .btn .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    .btn.loading .spinner { display: block; }
+    .btn.loading .btn-text { opacity: 0.7; }
+
+    /* ═══════════════════════════════════════════
+       RESULTS
+       ═══════════════════════════════════════════ */
+    .results {
+      margin: 40px 0 60px;
+      display: none;
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    .results.visible { display: block; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .results-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .lang-toggle {
+      display: flex;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .lang-btn {
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-sans);
+    }
+
+    .lang-btn.active {
+      background: var(--accent-1);
+      color: white;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .results-grid { grid-template-columns: 1fr; }
+    }
+
+    .result-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      transition: border-color 0.3s;
+    }
+
+    .result-card:hover { border-color: var(--border-glow); }
+
+    .result-card.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .result-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .result-card-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .result-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .result-card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Stats */
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .stat-row:last-child { border-bottom: none; }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .stat-value.highlight {
+      color: var(--accent-2);
+      font-size: 18px;
+    }
+
+    .stat-value.fee {
+      font-family: var(--font-mono);
+      color: var(--accent-green);
+    }
+
+    /* Documents */
+    .doc-list { list-style: none; }
+
+    .doc-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .doc-item:last-child { border-bottom: none; }
+
+    .doc-check {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Flags */
+    .flag-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--accent-red);
+      line-height: 1.5;
+    }
+
+    .flag-item.advisory {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+    }
+
+    .flag-item.success {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+    }
+
+    .flag-icon { font-size: 16px; flex-shrink: 0; }
+
+    /* Mode badge */
+    .mode-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+
+    .mode-badge.offline { background: rgba(245, 158, 11, 0.12); color: var(--accent-amber); }
+    .mode-badge.online { background: rgba(16, 185, 129, 0.12); color: var(--accent-green); }
+    .mode-badge.fallback { background: rgba(239, 68, 68, 0.12); color: var(--accent-red); }
+
+    /* Bangla text */
+    .bn-text { font-family: var(--font-bengali); }
+
+    /* Audit trail */
+    .audit-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .audit-item {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      background: var(--bg-glass);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px 0;
+      border-top: 1px solid var(--border-glass);
+      margin-top: 60px;
+    }
+
+    .footer p {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: var(--text-accent);
+      text-decoration: none;
+    }
+
+    .footer a:hover { text-decoration: underline; }
+
+    .disclaimer {
+      margin-top: 20px;
+      padding: 16px 24px;
+      background: rgba(245, 158, 11, 0.06);
+      border: 1px solid rgba(245, 158, 11, 0.12);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--accent-amber);
+      text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS
+       ═══════════════════════════════════════════ */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    @keyframes agentPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Staggered children */
+    .result-card { animation: fadeInUp 0.4s ease-out both; }
+    .result-card:nth-child(1) { animation-delay: 0.1s; }
+    .result-card:nth-child(2) { animation-delay: 0.2s; }
+    .result-card:nth-child(3) { animation-delay: 0.3s; }
+    .result-card:nth-child(4) { animation-delay: 0.4s; }
+    .result-card:nth-child(5) { animation-delay: 0.5s; }
+
+    .doc-item { animation: slideIn 0.3s ease-out both; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ═══ HERO ═══ -->
+    <header class="hero">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Multi-Agent AI System • CrewAI
+      </div>
+      <h1>
+        🛂 <span class="gradient">Amar Passport</span>
+      </h1>
+      <p>An AI-powered Virtual Consular Officer for Bangladesh e-Passport readiness assessment. Three specialized agents work together to evaluate eligibility, calculate fees, and prepare your document checklist.</p>
+      <div class="hero-tech">
+        <span class="tech-tag">CrewAI</span>
+        <span class="tech-tag">Groq / Gemini</span>
+        <span class="tech-tag">FastAPI</span>
+        <span class="tech-tag">Pydantic</span>
+        <span class="tech-tag">Python 3.12</span>
+      </div>
+    </header>
+
+    <!-- ═══ AGENT PIPELINE ═══ -->
+    <section class="pipeline" id="pipeline">
+      <div class="agent-card" id="agent-policy">
+        <div class="agent-header">
+          <div class="agent-icon">🛡️</div>
+          <div>
+            <div class="agent-name">The Policy Guardian</div>
+            <div class="agent-role">Eligibility Expert</div>
+          </div>
+        </div>
+        <div class="agent-desc">Determines permitted validity, page count, and required identification based on age. Flags inconsistencies.</div>
+        <div class="agent-status" id="status-policy">
+          <span>●</span> Idle
+        </div>
+      </div>
+
+      <div class="agent-card" id="agent-fee">
+        <div class="agent-header">
+          <div class="agent-icon">💰</div>
+          <div>
+            <div class="agent-name">The Chancellor</div>
+            <div class="agent-role">Fee Calculator</div>
+          </div>
+        </div>
+        <div class="agent-desc">Calculates exact BDT fee with 15% VAT based on page count, delivery speed, and validity period.</div>
+        <div class="agent-status" id="status-fee">
+          <span>●</span> Idle
+        </div>
+      </div>
+
+      <div class="agent-card" id="agent-doc">
+        <div class="agent-header">
+          <div class="agent-icon">📋</div>
+          <div>
+            <div class="agent-name">The Document Architect</div>
+            <div class="agent-role">Checklist Specialist</div>
+          </div>
+        </div>
+        <div class="agent-desc">Generates a customized bilingual document checklist based on profession, age, and application type.</div>
+        <div class="agent-status" id="status-doc">
+          <span>●</span> Idle
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ INPUT FORM ═══ -->
+    <section class="form-section" id="form-section">
+      <div class="form-title">📝 Applicant Profile</div>
+      <div class="form-subtitle">Enter the applicant's details to generate a comprehensive readiness report.</div>
+
+      <form id="profile-form">
+        <div class="form-grid">
+          <!-- Core -->
+          <div class="field">
+            <label for="age">Age</label>
+            <input type="number" id="age" value="24" min="0" max="120" required />
+          </div>
+
+          <div class="field">
+            <label for="profession">Profession</label>
+            <select id="profession">
+              <option value="private_employee">Private Employee</option>
+              <option value="government_employee">Government Employee</option>
+              <option value="retired_government">Retired Government</option>
+              <option value="student">Student</option>
+              <option value="business">Business</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="urgency">Urgency (days)</label>
+            <input type="number" id="urgency" value="14" min="1" max="365" placeholder="Leave blank for regular" />
+          </div>
+
+          <!-- Passport config -->
+          <div class="field">
+            <label for="validity">Validity (years)</label>
+            <select id="validity">
+              <option value="10">10 Years</option>
+              <option value="5">5 Years</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="pages">Page Count</label>
+            <select id="pages">
+              <option value="64">64 Pages</option>
+              <option value="48">48 Pages</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="app-type">Application Type</label>
+            <select id="app-type">
+              <option value="new">New Application</option>
+              <option value="reissue">Reissue</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="payment">Payment Method</label>
+            <select id="payment">
+              <option value="online">Online Payment</option>
+              <option value="offline">Offline Payment</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="location">Location</label>
+            <input type="text" id="location" value="Dhaka" />
+          </div>
+        </div>
+
+        <!-- Toggles -->
+        <div style="margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px;">
+          <div class="field field-toggle">
+            <div class="toggle">
+              <input type="checkbox" id="has-nid" checked />
+              <label class="toggle-track" for="has-nid"></label>
+            </div>
+            <label for="has-nid">Has NID Card</label>
+          </div>
+
+          <div class="field field-toggle">
+            <div class="toggle">
+              <input type="checkbox" id="has-brc" />
+              <label class="toggle-track" for="has-brc"></label>
+            </div>
+            <label for="has-brc">Has English Birth Registration</label>
+          </div>
+
+          <div class="field field-toggle">
+            <div class="toggle">
+              <input type="checkbox" id="has-noc" />
+              <label class="toggle-track" for="has-noc"></label>
+            </div>
+            <label for="has-noc">Has GO/NOC Certificate</label>
+          </div>
+
+          <div class="field field-toggle">
+            <div class="toggle">
+              <input type="checkbox" id="name-change" />
+              <label class="toggle-track" for="name-change"></label>
+            </div>
+            <label for="name-change">Name/Marital Status Change</label>
+          </div>
+
+          <div class="field field-toggle">
+            <div class="toggle">
+              <input type="checkbox" id="lost-passport" />
+              <label class="toggle-track" for="lost-passport"></label>
+            </div>
+            <label for="lost-passport">Lost Passport Case</label>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="btn-assess">
+            <span class="spinner"></span>
+            <span class="btn-text">⚡ Generate Readiness Report</span>
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-demo" title="Fill with sample data">
+            📋 Load Example
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ═══ RESULTS ═══ -->
+    <section class="results" id="results">
+      <div class="results-header">
+        <div class="results-title">📊 Passport Readiness Report</div>
+        <div class="lang-toggle">
+          <button class="lang-btn active" data-lang="en" onclick="switchLang('en')">English</button>
+          <button class="lang-btn" data-lang="bn" onclick="switchLang('bn')">বাংলা</button>
+        </div>
+      </div>
+
+      <div class="results-grid" id="results-grid">
+        <!-- Filled dynamically -->
+      </div>
+
+      <div class="disclaimer">
+        ⚠️ Preliminary guidance only. The responsible passport office makes the final decision.
+      </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer">
+      <p>Built with ❤️ using <a href="https://github.com/crewAIInc/crewAI" target="_blank">CrewAI</a> • <a href="https://fastapi.tiangolo.com" target="_blank">FastAPI</a> • <a href="https://groq.com" target="_blank">Groq</a></p>
+      <p style="margin-top: 8px;">Applied AI with Multi-Agent Systems — Amar Passport v1.0</p>
+    </footer>
+  </div>
+
+  <script>
+    /* ═══════════════════════════════════════════
+       STATE
+       ═══════════════════════════════════════════ */
+    let currentLang = 'en';
+    let currentData = null;
+
+    /* ═══════════════════════════════════════════
+       FORM → API
+       ═══════════════════════════════════════════ */
+    const form = document.getElementById('profile-form');
+    const btnAssess = document.getElementById('btn-assess');
+    const btnDemo = document.getElementById('btn-demo');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await runAssessment();
+    });
+
+    btnDemo.addEventListener('click', () => {
+      document.getElementById('age').value = 15;
+      document.getElementById('profession').value = 'student';
+      document.getElementById('urgency').value = 30;
+      document.getElementById('validity').value = '10';
+      document.getElementById('pages').value = '64';
+      document.getElementById('app-type').value = 'new';
+      document.getElementById('payment').value = 'online';
+      document.getElementById('location').value = 'Dhaka';
+      document.getElementById('has-nid').checked = false;
+      document.getElementById('has-brc').checked = true;
+      document.getElementById('has-noc').checked = false;
+      document.getElementById('name-change').checked = false;
+      document.getElementById('lost-passport').checked = false;
+    });
+
+    function buildProfile() {
+      const urgency = document.getElementById('urgency').value;
+      return {
+        age: parseInt(document.getElementById('age').value),
+        profession: document.getElementById('profession').value,
+        urgency_days: urgency ? parseInt(urgency) : null,
+        requested_validity_years: parseInt(document.getElementById('validity').value),
+        page_count: parseInt(document.getElementById('pages').value),
+        delivery_speed: null,
+        has_nid: document.getElementById('has-nid').checked,
+        has_english_brc: document.getElementById('has-brc').checked,
+        has_go_noc: document.getElementById('has-noc').checked,
+        location: document.getElementById('location').value || 'Bangladesh',
+        application_type: document.getElementById('app-type').value,
+        payment_method: document.getElementById('payment').value,
+        name_or_marital_change: document.getElementById('name-change').checked,
+        other_personal_data_change: false,
+        lost_passport: document.getElementById('lost-passport').checked,
+      };
+    }
+
+    async function runAssessment() {
+      btnAssess.classList.add('loading');
+      btnAssess.disabled = true;
+
+      // Animate agents
+      setAgentStatus('policy', 'running', 'Analyzing...');
+      setAgentStatus('fee', 'idle', 'Waiting');
+      setAgentStatus('doc', 'idle', 'Waiting');
+
+      try {
+        const profile = buildProfile();
+
+        // Step 1 — Policy Guardian
+        await delay(400);
+        setAgentStatus('fee', 'running', 'Calculating...');
+
+        // Step 2 — Fee Calculator
+        await delay(300);
+        setAgentStatus('doc', 'running', 'Building...');
+
+        const res = await fetch('/api/assess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profile),
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Request failed');
+        }
+
+        const data = await res.json();
+        currentData = data;
+
+        // Mark agents done
+        setAgentStatus('policy', 'done', 'Complete');
+        setAgentStatus('fee', 'done', 'Complete');
+        setAgentStatus('doc', 'done', 'Complete');
+
+        renderResults(data);
+      } catch (err) {
+        alert('Error: ' + err.message);
+        setAgentStatus('policy', 'idle', 'Idle');
+        setAgentStatus('fee', 'idle', 'Idle');
+        setAgentStatus('doc', 'idle', 'Idle');
+      } finally {
+        btnAssess.classList.remove('loading');
+        btnAssess.disabled = false;
+      }
+    }
+
+    /* ═══════════════════════════════════════════
+       AGENT STATUS
+       ═══════════════════════════════════════════ */
+    function setAgentStatus(agent, state, text) {
+      const el = document.getElementById(`status-${agent}`);
+      const card = document.getElementById(`agent-${agent}`);
+      el.className = `agent-status ${state === 'idle' ? '' : state}`;
+      const icons = { idle: '●', running: '◉', done: '✓' };
+      el.innerHTML = `<span>${icons[state]}</span> ${text}`;
+      card.classList.toggle('active', state === 'running');
+    }
+
+    /* ═══════════════════════════════════════════
+       RENDER RESULTS
+       ═══════════════════════════════════════════ */
+    function renderResults(data) {
+      const grid = document.getElementById('results-grid');
+      const el = data.eligibility;
+      const fee = data.fee;
+      const isEn = currentLang === 'en';
+
+      const deliveryLabels = {
+        regular: ['Regular', 'রেগুলার'],
+        express: ['Express', 'এক্সপ্রেস'],
+        super_express: ['Super Express', 'সুপার এক্সপ্রেস'],
+      };
+
+      const deliveryName = deliveryLabels[fee.requested_delivery] || [fee.requested_delivery, fee.requested_delivery];
+
+      // Flags / Warnings
+      const conflicts = isEn ? el.conflicts_en : el.conflicts_bn;
+      const advisories = isEn ? el.advisories_en : el.advisories_bn;
+      const warnings = isEn ? data.warnings_en : data.warnings_bn;
+
+      let flagsHtml = '';
+      if (conflicts.length === 0 && advisories.length === 0 && warnings.length === 0) {
+        flagsHtml = `<div class="flag-item success"><span class="flag-icon">✅</span>${isEn ? 'No inconsistencies detected. Application looks ready!' : 'কোনো অসঙ্গতি পাওয়া যায়নি। আবেদন প্রস্তুত!'}</div>`;
+      } else {
+        flagsHtml = [
+          ...conflicts.map(c => `<div class="flag-item"><span class="flag-icon">⚠️</span><span class="${isEn ? '' : 'bn-text'}">${c}</span></div>`),
+          ...advisories.map(a => `<div class="flag-item advisory"><span class="flag-icon">ℹ️</span><span class="${isEn ? '' : 'bn-text'}">${a}</span></div>`),
+          ...warnings.filter(w => !conflicts.includes(w)).map(w => `<div class="flag-item"><span class="flag-icon">🔍</span><span class="${isEn ? '' : 'bn-text'}">${w}</span></div>`),
+        ].join('');
+      }
+
+      // Documents
+      const docs = data.documents.map((d, i) => {
+        const text = isEn ? d.en : d.bn;
+        return `<li class="doc-item" style="animation-delay: ${i * 0.05}s"><span class="doc-check">✓</span><span class="${isEn ? '' : 'bn-text'}">${text}</span></li>`;
+      }).join('');
+
+      grid.innerHTML = `
+        <!-- Eligibility Card -->
+        <div class="result-card">
+          <div class="result-card-header">
+            <div class="result-card-icon" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);">🛡️</div>
+            <div>
+              <div class="result-card-title">${isEn ? 'Eligibility' : 'যোগ্যতা'}</div>
+              <div class="result-card-subtitle">${isEn ? 'Policy Guardian Assessment' : 'পলিসি গার্ডিয়ান মূল্যায়ন'}</div>
+            </div>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">${isEn ? 'Recommended Passport' : 'সুপারিশকৃত পাসপোর্ট'}</span>
+            <span class="stat-value highlight">${el.selected_page_count} ${isEn ? 'pages' : 'পৃষ্ঠা'}, ${el.selected_validity_years} ${isEn ? 'years' : 'বছর'}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">${isEn ? 'Permitted Validity' : 'অনুমোদিত মেয়াদ'}</span>
+            <span class="stat-value">${el.permitted_validity_years.join(', ')} ${isEn ? 'years' : 'বছর'}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">${isEn ? 'Permitted Pages' : 'অনুমোদিত পৃষ্ঠা'}</span>
+            <span class="stat-value">${el.permitted_page_counts.join(', ')}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">${isEn ? 'Identification' : 'পরিচয়পত্র'}</span>
+            <span class="stat-value ${isEn ? '' : 'bn-text'}" style="font-size: 13px; text-align: right; max-width: 60%;">${isEn ? el.identification_en : el.identification_bn}</span>
+          </div>
+        </div>
+
+        <!-- Fee Card -->
+        <div class="result-card">
+          <div class="result-card-header">
+            <div class="result-card-icon" style="background: linear-gradient(135deg, #10b981, #f59e0b);">💰</div>
+            <div>
+              <div class="result-card-title">${isEn ? 'Fee Breakdown' : 'ফি বিবরণ'}</div>
+              <div class="result-card-subtitle">${isEn ? 'Chancellor Assessment' : 'চ্যান্সেলর মূল্যায়ন'}</div>
+            </div>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">${isEn ? 'Delivery Type' : 'ডেলিভারির ধরন'}</span>
+            <span class="stat-value highlight">${deliveryName[isEn ? 0 : 1]}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">${isEn ? 'Delivery Time' : 'ডেলিভারি সময়'}</span>
+            <span class="stat-value ${isEn ? '' : 'bn-text'}">${isEn ? fee.delivery_time : fee.delivery_time_bn}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">${isEn ? 'Base Fee' : 'মূল ফি'}</span>
+            <span class="stat-value fee">${isEn ? 'BDT' : '৳'} ${fee.base_fee_bdt.toLocaleString()}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">${isEn ? 'VAT (15%)' : 'ভ্যাট (১৫%)'}</span>
+            <span class="stat-value fee">${isEn ? 'BDT' : '৳'} ${fee.vat_bdt.toLocaleString()}</span>
+          </div>
+          <div class="stat-row" style="border-top: 2px solid rgba(16,185,129,0.2); padding-top: 14px;">
+            <span class="stat-label" style="font-weight: 700; color: var(--text-primary);">${isEn ? 'Total Fee' : 'মোট ফি'}</span>
+            <span class="stat-value fee" style="font-size: 22px;">${isEn ? 'BDT' : '৳'} ${fee.total_fee_bdt.toLocaleString()}</span>
+          </div>
+          ${fee.benefit_note ? `<div class="stat-row"><span class="stat-label" style="color: var(--accent-green);">🎁 ${isEn ? fee.benefit_note : (fee.benefit_note_bn || fee.benefit_note)}</span></div>` : ''}
+        </div>
+
+        <!-- Documents Card -->
+        <div class="result-card">
+          <div class="result-card-header">
+            <div class="result-card-icon" style="background: linear-gradient(135deg, #8b5cf6, #f43f5e);">📋</div>
+            <div>
+              <div class="result-card-title">${isEn ? 'Required Documents' : 'প্রয়োজনীয় কাগজপত্র'}</div>
+              <div class="result-card-subtitle">${isEn ? 'Document Architect Checklist' : 'ডকুমেন্ট আর্কিটেক্ট চেকলিস্ট'}</div>
+            </div>
+          </div>
+          <ul class="doc-list">${docs}</ul>
+        </div>
+
+        <!-- Flags Card -->
+        <div class="result-card">
+          <div class="result-card-header">
+            <div class="result-card-icon" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">🚩</div>
+            <div>
+              <div class="result-card-title">${isEn ? 'Flags & Warnings' : 'সতর্কতা ও সংকেত'}</div>
+              <div class="result-card-subtitle">${isEn ? 'Inconsistency Detection' : 'অসঙ্গতি শনাক্তকরণ'}</div>
+            </div>
+          </div>
+          ${flagsHtml}
+        </div>
+
+        <!-- Audit Trail -->
+        <div class="result-card full-width">
+          <div class="result-card-header">
+            <div class="result-card-icon" style="background: linear-gradient(135deg, #64748b, #94a3b8);">🔍</div>
+            <div>
+              <div class="result-card-title">${isEn ? 'Audit Trail' : 'নিরীক্ষা তথ্য'}</div>
+              <div class="result-card-subtitle">${isEn ? 'Data provenance and official references' : 'তথ্য উৎস ও সরকারি রেফারেন্স'}</div>
+            </div>
+          </div>
+          <div class="audit-info">
+            <span class="audit-item">📦 ${data.audit.data_source}</span>
+            <span class="audit-item">📌 v${data.audit.data_version}</span>
+          </div>
+          <div style="margin-top: 12px;">
+            ${data.audit.source_urls.map(u => `<a href="${u}" target="_blank" style="display: block; font-size: 12px; color: var(--text-accent); margin: 4px 0; word-break: break-all;">${u}</a>`).join('')}
+          </div>
+          ${data.mode ? `<div class="mode-badge ${data.mode}">${data.mode === 'online' ? '🤖 AI-Enhanced (CrewAI)' : data.mode === 'offline' ? '⚡ Deterministic Engine' : '🔄 Fallback Mode'}</div>` : ''}
+          ${data.mode_reason ? `<div style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">${data.mode_reason}</div>` : ''}
+        </div>
+      `;
+
+      // Show results
+      const resultsEl = document.getElementById('results');
+      resultsEl.classList.add('visible');
+      resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* ═══════════════════════════════════════════
+       LANGUAGE TOGGLE
+       ═══════════════════════════════════════════ */
+    function switchLang(lang) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+      if (currentData) renderResults(currentData);
+    }
+
+    /* ═══════════════════════════════════════════
+       UTILITY
+       ═══════════════════════════════════════════ */
+    function delay(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+  </script>
+</body>
+</html>

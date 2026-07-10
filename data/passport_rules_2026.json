@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "version": "2026.06.03",
+    "country": "Bangladesh",
+    "currency": "BDT",
+    "vat_rate": 0.15,
+    "fees_include_vat": true,
+    "official_fee_url": "https://www.epassport.gov.bd/instructions/passport-fees",
+    "official_instruction_url": "https://www.epassport.gov.bd/instructions/instructions",
+    "official_documents_url": "https://www.epassport.gov.bd/landing/notices/34",
+    "last_verified": "2026-07-10"
+  },
+  "delivery_days": {
+    "regular": "15 working days / 21 calendar days",
+    "express": "7 working days / 10 calendar days",
+    "super_express": "2 working days"
+  },
+  "fees_2026": {
+    "48_pages": {
+      "5_years": {"regular": 4025, "express": 6325, "super_express": 8625},
+      "10_years": {"regular": 5750, "express": 8050, "super_express": 10350}
+    },
+    "64_pages": {
+      "5_years": {"regular": 6325, "express": 8625, "super_express": 12075},
+      "10_years": {"regular": 8050, "express": 10350, "super_express": 13800}
+    }
+  },
+  "required_docs": {
+    "application_form": {"en": "Printed application form", "bn": "মুদ্রিত আবেদনপত্র"},
+    "application_summary": {"en": "Printed application summary / appointment slip", "bn": "মুদ্রিত আবেদন সারাংশ / অ্যাপয়েন্টমেন্ট স্লিপ"},
+    "payment_slip": {"en": "Payment slip (offline payment only)", "bn": "পেমেন্ট স্লিপ (শুধু অফলাইন পেমেন্টের ক্ষেত্রে)"},
+    "nid": {"en": "Original NID and photocopy", "bn": "মূল জাতীয় পরিচয়পত্র ও ফটোকপি"},
+    "brc": {"en": "Online Birth Registration Certificate (English version), original and photocopy", "bn": "অনলাইন জন্মনিবন্ধন সনদ (ইংরেজি সংস্করণ), মূল ও ফটোকপি"},
+    "parents_nid": {"en": "Father's or mother's NID copy", "bn": "পিতা অথবা মাতার জাতীয় পরিচয়পত্রের কপি"},
+    "child_photo": {"en": "3R lab-print photo with grey background", "bn": "ধূসর ব্যাকগ্রাউন্ডের ৩আর ল্যাব-প্রিন্ট ছবি"},
+    "government_noc": {"en": "Government Order (GO) / No Objection Certificate (NOC), as applicable", "bn": "সরকারি আদেশ (GO) / অনাপত্তি সনদ (NOC), প্রযোজ্য ক্ষেত্রে"},
+    "profession_proof": {"en": "Profession proof / relevant technical certificate", "bn": "পেশার প্রমাণপত্র / প্রাসঙ্গিক কারিগরি সনদ"},
+    "marriage_certificate": {"en": "Marriage certificate for marital-status or marriage-related name change", "bn": "বৈবাহিক অবস্থা বা বিবাহজনিত নাম পরিবর্তনের জন্য বিবাহ সনদ"},
+    "change_support": {"en": "Official supporting documents for changed personal data", "bn": "পরিবর্তিত ব্যক্তিগত তথ্যের সরকারি সহায়ক নথি"},
+    "previous_passport": {"en": "Previous passport and data-page photocopy", "bn": "পূর্ববর্তী পাসপোর্ট ও ডাটা পৃষ্ঠার ফটোকপি"},
+    "police_report": {"en": "Original General Diary (GD) copy and old passport photocopy", "bn": "মূল সাধারণ ডায়েরি (জিডি) কপি ও পুরোনো পাসপোর্টের ফটোকপি"},
+    "prl_order": {"en": "PRL order / pension book", "bn": "পিআরএল আদেশ / পেনশন বই"}
+  }
+}
+

@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "amar-passport"
+version = "1.0.0"
+description = "A bilingual, policy-grounded Bangladesh e-Passport readiness crew"
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = { text = "MIT" }
+authors = [{ name = "Amar Passport Team" }]
+dependencies = [
+  "beautifulsoup4>=4.12,<5",
+  "crewai>=1.0,<2",
+  "fastapi>=0.110,<1",
+  "pydantic>=2.7,<3",
+  "python-dotenv>=1.0,<2",
+  "requests>=2.31,<3",
+  "uvicorn>=0.29,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0,<9",
+  "pytest-cov>=5.0,<7",
+  "ruff>=0.6,<1",
+]
+
+[project.scripts]
+amar-passport = "amar_passport.cli:main"
+amar-passport-web = "amar_passport.web:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/amar_passport"]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
