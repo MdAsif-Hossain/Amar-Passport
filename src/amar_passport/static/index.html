@@ -1014,7 +1014,7 @@
         await delay(300);
         setAgentStatus('doc', 'running', 'Building...');
 
-        const res = await fetch('/api/assess', {
+        const res = await fetch('/api/crew', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(profile),
