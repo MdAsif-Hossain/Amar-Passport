@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     /* ═══════════════════════════════════════════
        DESIGN SYSTEM — TOKENS
@@ -678,6 +679,32 @@
       text-align: center;
     }
 
+    .markdown-body {
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+      margin-top: 24px; margin-bottom: 16px; font-weight: 600; line-height: 1.25;
+    }
+    .markdown-body h1 { font-size: 2em; }
+    .markdown-body h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid var(--border-glass); }
+    .markdown-body h3 { font-size: 1.25em; }
+    .markdown-body p, .markdown-body blockquote, .markdown-body ul, .markdown-body ol, .markdown-body dl, .markdown-body table, .markdown-body pre, .markdown-body details {
+      margin-top: 0; margin-bottom: 16px;
+    }
+    .markdown-body table {
+      display: block; width: 100%; width: max-content; max-width: 100%; overflow: auto; border-collapse: collapse;
+    }
+    .markdown-body table th { font-weight: 600; }
+    .markdown-body table th, .markdown-body table td {
+      padding: 6px 13px; border: 1px solid var(--border-glass);
+    }
+    .markdown-body table tr { background-color: rgba(255, 255, 255, 0.01); border-top: 1px solid var(--border-glass); }
+    .markdown-body table tr:nth-child(2n) { background-color: rgba(255, 255, 255, 0.03); }
+    .markdown-body blockquote {
+      padding: 0 1em; color: var(--text-muted); border-left: 0.25em solid var(--border-glass);
+    }
+
     /* ═══════════════════════════════════════════
        ANIMATIONS
        ═══════════════════════════════════════════ */
@@ -1199,6 +1226,22 @@
           ${data.mode ? `<div class="mode-badge ${data.mode}">${data.mode === 'online' ? '🤖 AI-Enhanced (CrewAI)' : data.mode === 'offline' ? '⚡ Deterministic Engine' : '🔄 Fallback Mode'}</div>` : ''}
           ${data.mode_reason ? `<div style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">${data.mode_reason}</div>` : ''}
         </div>
+        
+        <!-- AI Generated Markdown Report (Optional) -->
+        ${data.crew_report && data.mode === 'online' ? `
+        <div class="result-card full-width" style="margin-top: 20px;">
+          <div class="result-card-header">
+            <div class="result-card-icon" style="background: linear-gradient(135deg, #10b981, #3b82f6);">🤖</div>
+            <div>
+              <div class="result-card-title">${isEn ? 'AI-Generated Report' : 'এআই-জেনারেটেড রিপোর্ট'}</div>
+              <div class="result-card-subtitle">${isEn ? 'CrewAI Markdown Output' : 'CrewAI মার্কডাউন আউটপুট'}</div>
+            </div>
+          </div>
+          <div class="markdown-body" style="font-size: 14px; margin-top: 16px;">
+            ${marked.parse(data.crew_report)}
+          </div>
+        </div>
+        ` : ''}
       `;
 
       // Show results
