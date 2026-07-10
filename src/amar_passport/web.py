@@ -100,8 +100,29 @@ async def crew_run(request: Request) -> JSONResponse:
 
     try:
         from amar_passport.crew import run_passport_crew
+        import litellm
+        
+        # Monkey patch litellm to fix CrewAI 1.15.x injecting 'cache_breakpoint' which breaks Groq
+        if not getattr(litellm, "_amar_patched", False):
+            orig_completion = litellm.completion
+            def patched_completion(*args, **kwargs):
+                if "messages" in kwargs:
+                    for msg in kwargs["messages"]:
+                        msg.pop("cache_breakpoint", None)
+                return orig_completion(*args, **kwargs)
+            litellm.completion = patched_completion
+            
+            orig_acompletion = litellm.acompletion
+            async def patched_acompletion(*args, **kwargs):
+                if "messages" in kwargs:
+                    for msg in kwargs["messages"]:
+                        msg.pop("cache_breakpoint", None)
+                return await orig_acompletion(*args, **kwargs)
+            litellm.acompletion = patched_acompletion
+            
+            litellm._amar_patched = True
 
-        crew_report = run_passport_crew(facts, model=model)
+        crew_report = await run_passport_crew(facts, model=model)
         return JSONResponse(
             content={
                 **_facts_to_response(facts),
@@ -110,6 +131,10 @@ async def crew_run(request: Request) -> JSONResponse:
             }
         )
     except Exception as exc:
+        import sys
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        print(f"CrewAI execution failed: {exc}", file=sys.stderr)
         # Fallback to deterministic
         return JSONResponse(
             content={

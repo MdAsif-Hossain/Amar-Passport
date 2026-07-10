@@ -6,7 +6,7 @@ from typing import Any
 from amar_passport.models import ReadinessFacts
 
 
-def run_passport_crew(facts: ReadinessFacts, model: str | None = None) -> str:
+async def run_passport_crew(facts: ReadinessFacts, model: str | None = None) -> str:
     """Run the three-agent sequential crew and return its final Markdown report."""
 
     try:
@@ -116,6 +116,6 @@ def run_passport_crew(facts: ReadinessFacts, model: str | None = None) -> str:
         verbose=True,
         memory=False,
     )
-    result = crew.kickoff()
+    result = await crew.kickoff_async()
     return getattr(result, "raw", str(result))
 
